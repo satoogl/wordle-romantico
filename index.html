@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordle Especial 💖</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+#game {
+    display: grid;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.row {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.box {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #444;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.correct { background: green; }
+.present { background: goldenrod; }
+.wrong { background: #333; }
+
+input {
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+
+button {
+    padding: 10px;
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+/* TELA DE VITÓRIA */
+#winScreen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 999;
+    animation: fadeIn 1s ease;
+}
+
+#winScreen img {
+    width: 80%;
+    max-width: 350px;
+    border-radius: 20px;
+    margin-top: 20px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>nosso match, tem nome...</h1>
+
+<div id="game"></div>
+
+<input id="guess" maxlength="5">
+<button onclick="submitGuess()">OK</button>
+
+<!-- TELA FINAL -->
+<div id="winScreen">
+    <h1>Você acertou!</h1>
+    <p>Tá bom... você é muito inteligente (e lindo também🫣)</p>
+
+    <img src="foto.jpg" alt="foto especial">
+
+    <audio id="music" src="musica.mp3"></audio>
+</div>
+
+<script>
+
+const answer = "PABLO"; // TROQUE AQUI A PALAVRA
+let attempts = 0;
+const maxAttempts = 6;
+
+function createBoard() {
+    const game = document.getElementById("game");
+
+    for (let i = 0; i < maxAttempts; i++) {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        for (let j = 0; j < 5; j++) {
+            const box = document.createElement("div");
+            box.className = "box";
+            row.appendChild(box);
+        }
+
+        game.appendChild(row);
+    }
+}
+
+createBoard();
+
+function showWinScreen() {
+    const screen = document.getElementById("winScreen");
+    const music = document.getElementById("music");
+
+    screen.style.display = "flex";
+
+    // som de acerto
+    const acerto = new Audio("acerto.mp3");
+    acerto.play();
+
+    // depois que o som terminar, toca a música
+    acerto.addEventListener("ended", () => {
+        music.play().catch(() => {
+            console.log("Autoplay bloqueado pelo navegador");
+        });
+    });
+}
+
+function submitGuess() {
+    const input = document.getElementById("guess");
+    let guess = input.value.toUpperCase();
+
+    if (guess.length !== 5) return;
+
+    const row = document.getElementsByClassName("row")[attempts];
+    let answerArr = answer.split("");
+    let guessArr = guess.split("");
+
+    for (let i = 0; i < 5; i++) {
+        let box = row.children[i];
+        box.textContent = guessArr[i];
+
+        if (guessArr[i] === answerArr[i]) {
+            box.classList.add("correct");
+        } else if (answerArr.includes(guessArr[i])) {
+            box.classList.add("present");
+        } else {
+            box.classList.add("wrong");
+        }
+    }
+
+    if (guess === answer) {
+        setTimeout(showWinScreen, 300);
+        return;
+    }
+
+    attempts++;
+    input.value = "";
+
+    if (attempts === maxAttempts) {
+        setTimeout(() => {
+            alert("Fim de jogo");
+        }, 200);
+    }
+}
+
+</script>
+
+</body>
+</html>
